@@ -1,0 +1,53 @@
+User Increment {{increment}}
+
+<div class="container">
+  <label>Frequency</label>
+  <input [(ngModel)]="frequency" type="number">
+  <label>Data Size</label>
+  <input [(ngModel)]="dataSize" type="number">
+  <button (click)="startPseudoSocket()">Start</button>
+  <button (click)="stopPseudoSocket()">Stop</button>
+  <br>
+  <br>
+  <br>
+  <table class="table">
+    <tr>
+      <th>
+        Id
+      </th>
+      <th>
+        int
+      </th>
+      <th>
+        float
+      </th>
+      <th>
+        color
+      </th>
+      <th>
+        child
+      </th>
+    </tr>
+    <tr *ngFor="let item of data | async">
+      <td>
+        {{item.id}}
+      </td>
+      <td>
+        {{item.int}}
+      </td>
+      <td>
+        {{item.float}}
+      </td>
+      <td [style.background-color]="item.color">
+        {{item.color}}
+      </td>
+      <table class="table">
+        <th>id</th>
+        <th>color</th>
+        <tr>
+          <td>{{item.child.id}}</td>
+          <td [style.background-color]="item.child.color">{{item.child.color}}</td>
+        </tr>
+        </table>
+  </table>
+</div>
