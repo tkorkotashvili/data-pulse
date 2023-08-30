@@ -17,7 +17,6 @@ export class PseudoSocketService {
 
   init() {
     if (!this.worker) {
-      console.log('init worker again');
       this.worker = new Worker(new URL('./app.worker.ts', import.meta.url));
     }
   }
@@ -37,7 +36,6 @@ export class PseudoSocketService {
 
   postMessage(data: SocketMessage): void {
     if (this.worker) {
-      console.log('post message?', this.worker);
       this.worker.postMessage(data);
     }
   }

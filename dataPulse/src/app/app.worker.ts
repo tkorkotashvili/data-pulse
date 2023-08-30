@@ -17,7 +17,6 @@ addEventListener('message', ({ data }) => {
 });
 
 let currentInterval: any;
-let currentArraySize = 10;
 
 function generateRandomData() {
   const randomId = Math.random().toString(36).substr(2, 9);
@@ -33,7 +32,6 @@ function generateRandomData() {
 }
 
 function getRandomColor(): string {
-  const randomFormat = Math.floor(Math.random() * 3);
   return (
     '#' +
     ('000000' + Math.floor(Math.random() * 16777215).toString(16)).substr(-6)
