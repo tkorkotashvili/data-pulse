@@ -1,53 +1,69 @@
-User Increment {{increment}}
-
 <div class="container">
-  <label>Frequency</label>
-  <input [(ngModel)]="frequency" type="number">
-  <label>Data Size</label>
-  <input [(ngModel)]="dataSize" type="number">
-  <button (click)="startPseudoSocket()">Start</button>
-  <button (click)="stopPseudoSocket()">Stop</button>
-  <br>
-  <br>
-  <br>
+  <form class="form" [formGroup]="form">
+    <div class="form-input">
+      <label>Frequency</label>
+      <input formControlName="frequency" type="number"/>
+      <div class="error" *ngIf="form.touched && form.get('frequency')?.hasError('required')">Frequency is required.
+      </div>
+      <div class="error" *ngIf="form.touched && form.get('frequency')?.hasError('min')">Frequency should be greater than
+        zero.
+      </div>
+    </div>
+    <div class="form-input">
+      <label>Data Size</label>
+      <input formControlName="dataSize" type="number"/>
+      <div class="error" *ngIf="form.touched && form.get('dataSize')?.hasError('required')">Data size is required.</div>
+      <div class="error" *ngIf="form.touched && form.get('dataSize')?.hasError('min')">Data size should be greater than
+        zero.
+      </div>
+      <div class="error" *ngIf="form.touched && form.get('dataSize')?.hasError('max')">Data size should not be greater
+        than 1000000.
+      </div>
+    </div>
+    <div class="form-input">
+      <label>Additional Ids</label>
+      <input
+        formControlName="additionalIds"
+        type="text"
+      />
+      <div class="error" *ngIf="form.touched && form.get('additionalIds')?.hasError('pattern')">Additional Ids should be
+        comma separated
+        numbers.
+      </div>
+    </div>
+  </form>
+
   <table class="table">
     <tr>
-      <th>
-        Id
-      </th>
-      <th>
-        int
-      </th>
-      <th>
-        float
-      </th>
-      <th>
-        color
-      </th>
-      <th>
-        child
-      </th>
+      <th>Id</th>
+      <th>int</th>
+      <th>float</th>
+      <th>color</th>
+      <th>child</th>
     </tr>
-    <tr *ngFor="let item of data | async">
+    <tr *ngFor="let item of data$ | async">
       <td>
-        {{item.id}}
+        {{ item.id }}
       </td>
       <td>
-        {{item.int}}
+        {{ item.int }}
       </td>
       <td>
-        {{item.float}}
+        {{ item.float }}
       </td>
       <td [style.background-color]="item.color">
-        {{item.color}}
+        {{ item.color }}
       </td>
       <table class="table">
         <th>id</th>
         <th>color</th>
         <tr>
-          <td>{{item.child.id}}</td>
-          <td [style.background-color]="item.child.color">{{item.child.color}}</td>
+          <td>{{ item.child.id }}</td>
+          <td [style.background-color]="item.child.color">
+            {{ item.child.color }}
+          </td>
         </tr>
-        </table>
+      </table>
+    </tr>
   </table>
 </div>

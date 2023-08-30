@@ -8,13 +8,12 @@ export interface IPseudoSocketParams {
 export type SocketMessage = IPseudoSocketParams | 'stop';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PseudoSocketService {
+  worker: Worker | undefined;
 
-  private worker: Worker | undefined;
-
-  constructor() { }
+  constructor() {}
 
   init() {
     if (!this.worker) {
@@ -32,11 +31,8 @@ export class PseudoSocketService {
 
   stop() {
     if (this.worker) {
-
       this.worker.postMessage('stop');
-
     }
-
   }
 
   postMessage(data: SocketMessage): void {
@@ -48,12 +44,9 @@ export class PseudoSocketService {
 
   addEventListener(callback: (data: ArrayBuffer) => void): void {
     if (this.worker) {
-      this.worker.onmessage = ({data}) => {
+      this.worker.onmessage = ({ data }) => {
         callback(data);
       };
     }
   }
-
-
-
 }

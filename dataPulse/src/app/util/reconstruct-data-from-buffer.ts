@@ -1,10 +1,9 @@
-import {ITableItem} from "../interfaces/table-item";
+import { ITableItem } from '../interfaces/table-item';
 
 export function reconstructDataFromBuffer(buffer: ArrayBuffer): ITableItem[] {
   const BYTES_PER_STRING = 2; // using 2 bytes for each character (UTF-16)
   const BYTES_PER_INT = 4;
   const BYTES_PER_FLOAT = 8;
-  const bytesPerItem = 9 * BYTES_PER_STRING * 2 + BYTES_PER_INT + BYTES_PER_FLOAT + 7 * BYTES_PER_STRING * 2;
   const view = new DataView(buffer);
   const items = [];
   let offset = 0;
@@ -35,15 +34,19 @@ export function reconstructDataFromBuffer(buffer: ArrayBuffer): ITableItem[] {
       color,
       child: {
         id: childId,
-        color: childColor
-      }
+        color: childColor,
+      },
     });
   }
 
   return items;
 }
 
-function deserializeString(view: DataView, offset: number, length: number): string {
+function deserializeString(
+  view: DataView,
+  offset: number,
+  length: number,
+): string {
   let result = '';
   for (let i = 0; i < length; i++) {
     result += String.fromCharCode(view.getUint16(offset, true));

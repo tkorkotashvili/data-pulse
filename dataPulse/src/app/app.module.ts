@@ -1,22 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppComponent } from './app.component';
-import {FormsModule} from "@angular/forms";
-import {CommonModule} from "@angular/common";
-import { TableItemComponent } from './table-item/table-item.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    TableItemComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    CommonModule
-  ],
+  declarations: [AppComponent],
+  imports: [BrowserModule, FormsModule, ReactiveFormsModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

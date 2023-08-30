@@ -1,14 +1,15 @@
-import {ITableItem} from "../interfaces/table-item";
+import { ITableItem } from '../interfaces/table-item';
 
 export const BYTES_PER_STRING = 2; // using 2 bytes for each character (UTF-16)
 export const BYTES_PER_INT = 4;
 export const BYTES_PER_FLOAT = 8;
 
 export function convertDataToBuffer(data: ITableItem[]): ArrayBuffer {
-  const bytesPerItem = 9 * BYTES_PER_STRING * 2 // ID for item and child
-    + BYTES_PER_INT
-    + BYTES_PER_FLOAT
-    + 7 * BYTES_PER_STRING * 2; // color for item and child
+  const bytesPerItem =
+    9 * BYTES_PER_STRING * 2 + // ID for item and child
+    BYTES_PER_INT +
+    BYTES_PER_FLOAT +
+    7 * BYTES_PER_STRING * 2; // color for item and child
 
   const buffer = new ArrayBuffer(data.length * bytesPerItem);
   const view = new DataView(buffer);
@@ -30,7 +31,7 @@ export function convertDataToBuffer(data: ITableItem[]): ArrayBuffer {
   return buffer;
 }
 
-export function serializeString(view: any, str:any, offset:any) {
+export function serializeString(view: any, str: any, offset: any) {
   for (let char of str) {
     view.setUint16(offset, char.charCodeAt(0), true);
     offset += BYTES_PER_STRING;

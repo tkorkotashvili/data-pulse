@@ -1,75 +1,103 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {fromEvent, ReplaySubject} from "rxjs";
-import {ITableItem} from "./interfaces/table-item";
-import {reconstructDataFromBuffer} from "./util/reconstruct-data-from-buffer";
-import {PseudoSocketService} from "./pseudo-socket.service";
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { debounceTime, fromEvent, ReplaySubject } from 'rxjs';
+import { ITableItem } from './interfaces/table-item';
+import { reconstructDataFromBuffer } from './util/reconstruct-data-from-buffer';
+import { PseudoSocketService } from './pseudo-socket.service';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnDestroy{
+export class AppComponent implements OnDestroy {
+  additionalIds: string[] | undefined;
 
-  data = new ReplaySubject<ITableItem[]>(1);
-  increment: number = 0;
-  frequency: number = 0;
-  dataSize: number = 0;
+  data$ = new ReplaySubject<ITableItem[]>(1);
 
+  form: FormGroup = new FormGroup({
+    frequency: new FormControl(0, [Validators.required, Validators.min(10)]),
+    dataSize: new FormControl(0, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(1000000),
+    ]),
+    additionalIds: new FormControl(null, [additionalIdsValidator()]),
+  });
 
-  constructor(private cdr: ChangeDetectorRef, private pseudoSocketService: PseudoSocketService) {
-
-    fromEvent(document, 'click').subscribe(() => {
-      this.increment++;
-      this.cdr.detectChanges();
-    });
+  constructor(private pseudoSocketService: PseudoSocketService) {
+    let currentFrequency: number;
+    let currentDataSize: number;
 
     this.pseudoSocketService.init();
 
-    this.pseudoSocketService.addEventListener( (data: ArrayBuffer) => {
-      console.log('callback')
-      this.data.next(reconstructDataFromBuffer(data));
+    this.pseudoSocketService.addEventListener((data: ArrayBuffer) => {
+      const reconstructedData = reconstructDataFromBuffer(data);
+
+      if (this.additionalIds && this.additionalIds?.length > 0) {
+        for (let i = 0; i < this.additionalIds?.length && i < 10; i++) {
+          if (reconstructedData[i]) {
+            reconstructedData[i].id = this.additionalIds[i];
+          }
+        }
+      }
+
+      this.data$.next(reconstructedData);
     });
 
+    this.form.valueChanges.pipe(debounceTime(500)).subscribe((value) => {
+      if (value.additionalIds) {
+        this.additionalIds = value.additionalIds.split(',');
+      }
 
+      if (
+        currentFrequency !== value.frequency ||
+        currentDataSize !== value.dataSize
+      ) {
+        this.stopPseudoSocket();
+
+        this.startPseudoSocket(value.frequency, value.dataSize);
+
+        currentFrequency = value.frequency;
+        currentDataSize = value.dataSize;
+      }
+    });
   }
 
-
-  calculateRequiredWorkers(dataArraySize: number): number {
-    const singleWorkerCapacity = 100000;
-    const maxWorkers = 6;
-
-    const workersNeeded = Math.ceil(dataArraySize / singleWorkerCapacity);
-
-    return Math.min(workersNeeded, maxWorkers);
-  }
-
-
-  startPseudoSocket() {
+  startPseudoSocket(interval: number, arraySize: number) {
     if (typeof Worker !== 'undefined') {
-
       this.pseudoSocketService.postMessage({
-          interval: this.frequency,
-          arraySize: this.dataSize
+        interval: interval,
+        arraySize: arraySize,
       });
-
     }
-
   }
 
   stopPseudoSocket() {
-
     if (typeof Worker !== 'undefined') {
-      this.pseudoSocketService.postMessage( 'stop');
+      this.pseudoSocketService.postMessage('stop');
     }
-    this.pseudoSocketService.terminate();
-
+    this.pseudoSocketService.stop();
   }
 
   ngOnDestroy() {
     this.pseudoSocketService.terminate();
   }
-
 }
 
+function additionalIdsValidator(): ValidatorFn {
+  return (control: AbstractControl): { [key: string]: any } | null => {
+    const value = control.value as string;
+    if (value && value.split(',').some((id) => !Number.isInteger(Number(id)))) {
+      return { invalidIds: true };
+    }
+    return null;
+  };
+}

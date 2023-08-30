@@ -13,3 +13,18 @@
 .table tr {
   border: 1px solid black;
 }
+
+.error {
+  color: red;
+  margin: 5px;
+}
+
+.form {
+  display: flex;
+}
+
+.form input {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+}
