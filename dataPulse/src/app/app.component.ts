@@ -55,6 +55,8 @@ export class AppComponent implements OnDestroy {
     this.form.valueChanges.pipe(debounceTime(500)).subscribe((value) => {
       if (value.additionalIds) {
         this.additionalIds = value.additionalIds.split(',');
+      } else {
+        this.additionalIds = undefined;
       }
 
       if (
