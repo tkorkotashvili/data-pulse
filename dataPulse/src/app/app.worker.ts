@@ -48,10 +48,6 @@ function generateDataArray(arraySize: number) {
   return dataArray;
 }
 
-function generateDataArrayBuffer(data: ITableItem[]) {
-  return convertDataToBuffer(data);
-}
-
 function start(interval: number | undefined, arraySize: number) {
   if (currentInterval) {
     clearInterval(currentInterval);
@@ -59,9 +55,9 @@ function start(interval: number | undefined, arraySize: number) {
 
   currentInterval = setInterval(() => {
     const data = generateDataArray(arraySize);
-    const last10 = data.slice(-10);
+    const itemsToPresent = data.slice(-10);
 
-    const buffer = generateDataArrayBuffer(last10);
+    const buffer = convertDataToBuffer(itemsToPresent);
     postMessage(buffer, [buffer]);
   }, interval);
 }
